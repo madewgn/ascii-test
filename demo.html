@@ -1,0 +1,408 @@
+    <!DOCTYPE html>
+<html lang="en-us">
+	<head>
+		
+			
+			<script async src="https://www.googletagmanager.com/gtag/js?id=UA-51305662-2"></script>
+			<script>
+				window.dataLayer = window.dataLayer || [];
+				function gtag(){dataLayer.push(arguments);}
+				gtag('js', new Date());
+
+				gtag('config', 'UA-51305662-2');
+			</script>
+		
+
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="author" content="Tony Lykke">
+
+		
+			<meta name="description" content="Guide to setting up compact custom fonts in asciinema for showing glyphs and other uncommon unicode characters.">
+		
+		<meta name="generator" content="Hugo 0.56.1" />
+		<title>Custom Fonts in Asciinema · Adventures in Reliability · Tony Lykke</title>
+		<link rel="shortcut icon" href="https://www.tonylykke.com/images/favicon.ico">
+		<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+		<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+		<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+		<link rel="manifest" href="/manifest.json">
+		<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+		<meta name="theme-color" content="#ffffff">
+		<link rel="stylesheet" href="https://www.tonylykke.com/css/style.css">
+		<link rel="stylesheet" href="https://www.tonylykke.com/css/highlight.css">
+		<link href="https://fonts.googleapis.com/css?family=Roboto+Mono:300|Rubik" rel="stylesheet">
+		
+			<link rel="stylesheet" href="https://www.tonylykke.com/css/cursor.css">
+		
+			<link rel="stylesheet" href="https://www.tonylykke.com/css/override.css">
+		
+
+		
+			<link rel="stylesheet" href="https://www.tonylykke.com/css/font-awesome.min.css">
+		
+		
+			<link rel="stylesheet" type="text/css" href="https://www.tonylykke.com/css/asciinema-player.css" />
+			<link rel="stylesheet" type="text/css" href="https://www.tonylykke.com/css/asciinema-glyphs.css" />
+		
+
+		
+			<link href="https://www.tonylykke.com/index.xml" rel="alternate" type="application/rss+xml" title="Adventures in Reliability · Tony Lykke" />
+		
+	</head>
+
+    <body>
+        <nav class="main-nav compact-nav">
+	<div>
+		<div class="nav-profile">
+    <section id="wrapper"
+    class="
+        post-nav
+        ">
+        <header id="header">
+            <a href='https://www.tonylykke.com/'>
+                <img id="avatar" class="2x" src="https://www.tonylykke.com/images/avatar.png"/>
+            </a>
+            <h1>Tony Lykke</h1>
+        </header>
+    </section>
+</div>
+
+
+	<div class="profile-nav-links">
+		
+
+	<a href='https://www.tonylykke.com/'> <span class="arrow">←</span>Home</a>
+
+<a href='https://www.tonylykke.com/posts'>Posts</a>
+<a href='https://www.tonylykke.com/speaking'>Speaking</a>
+<a href='https://www.tonylykke.com/about'>About</a>
+
+
+
+
+<a class="cta" href="https://www.tonylykke.com/index.xml">RSS</a>
+
+
+	</div>
+</nav>
+
+
+        <section id="wrapper">
+            <article class="post">
+                <header>
+                    <h1>
+                        Custom Fonts in Asciinema
+                    </h1>
+                    <h2 class="headline">
+                    Jun 18, 2018 00:20
+                    · 957 words
+                    · 5 minutes read
+                      <span class="tags"></span>
+                    </h2>
+                </header>
+                
+                <section id="post-body">
+                    
+
+<p><a href="https://asciinema.org/">asciinema</a> is an excellent tool for technical blogs, documentation, and landing pages alike. It allows you to create compact animations of commands along with their output and formatting with far less overhead than the alternative of creating a gif or mp4.</p>
+
+<p>One minor downside is that if you use a custom font in your prompt to jazz it up a little (like <a href="https://fontawesome.com/">Font Awesome</a> or <a href="https://nerdfonts.com/">Nerd Fonts</a>, as many programmers do) your asciinema cast might end up looking something like this:</p>
+
+<p>
+    <asciinema-player src="https://d33wubrfki0l68.cloudfront.net/b336354cd000e05055825ec4ade7866f95032a7f/9ed74/casts/asciinema-missing-glyphs.cast" cols="640" rows="10"></asciinema-player>
+</p>
+
+<p>Notice the □ (U+25A1 WHITE SQUARE) where the custom glyphs should be. The exact placeholder character rendered depends on what font you use, but this is a common choice.</p>
+
+<h2 id="naively-adding-a-whole-font">Naively adding a whole font</h2>
+
+<p>You could very easily solve this problem by just adding an entire font file to the asciinema cast like this:</p>
+
+<pre><code class="language-css">@font-face {
+    font-family: &quot;My Special Font&quot;;
+    src: url(&quot;/css/fonts/special.ttf&quot;) format(&quot;truetype&quot;);
+}
+
+.asciinema-terminal {
+    font-family: 'My Special Font', Consolas, Menlo, 'Bitstream Vera Sans Mono', monospace, 'Powerline Symbols';
+}
+</code></pre>
+
+<p>Font files are big though, so doing it this way will add significant bloat to your static assets, making users download potentially thousands of glyphs that your casts don&rsquo;t actually use. eg: <a href="https://github.com/ryanoasis/nerd-fonts/blob/2.0.0/patched-fonts/SourceCodePro/Regular/complete/Sauce%20Code%20Pro%20Nerd%20Font%20Complete.ttf">Sauce Code Pro Nerd Font Complete</a> is 944KB raw and around 528KB gzipped. That&rsquo;s a lot of data for only a few characters, especially when the entire purpose of aciinema is to avoid requiring huge gif or mp4 files for terminal animations!</p>
+
+<h2 id="only-loading-the-fonts-you-need">Only loading the fonts you need</h2>
+
+<h3 id="asciinema-casts-format">asciinema casts format</h3>
+
+<p>Fortunately, the source for asciinema casts is plaintext and relatively readable. This is the entire source for the above simple cast:</p>
+
+<pre><code class="language-json">{&quot;version&quot;: 2, &quot;width&quot;: 238, &quot;height&quot;: 67, &quot;timestamp&quot;: 1528769911, &quot;env&quot;: {&quot;SHELL&quot;: &quot;/bin/zsh&quot;, &quot;TERM&quot;: &quot;xterm-256color&quot;}}
+[1.766208, &quot;o&quot;, &quot;\u001b[1m\u001b[7m%\u001b[27m\u001b[1m\u001b[0m                                                                                                                                                                                                                                             \r \r&quot;]
+[1.768863, &quot;o&quot;, &quot;\u001b]2;roganartu@mbp: ~/Code/blog\u0007\u001b]1;~/Code/blog\u0007&quot;]
+[2.063703, &quot;o&quot;, &quot;\r\u001b[0m\u001b[27m\u001b[24m\u001b[J\r\n╭─\u001b[39m\u001b[0m\u001b[49m\u001b[44m \u001b[30m\u001b[39m \u001b[30m…/Code/blog \u001b[42m\u001b[34m \u001b[30m \u001b[39m \u001b[30m master  \u001b[49m\u001b[32m\u001b[39m \r\n│\r\n╰\u001b[39m \u001b[K\u001b[194C\u001b[1A\u001b[1A\u001b[39m\u001b[0m\u001b[49m\u001b[30m\u001b[39m\u001b[40m\u001b[32m \u001b[32m\u001b[39m \u001b[39m\u001b[33m\u001b[39m\u001b[43m\u001b[30m 2.38G \u001b[30m\u001b[39m \u001b[39m\u001b[91m\u001b[39m\u001b[101m\u001b[38;5;195m 91% (6:00) \u001b[38;5;195m\u001b[39m \u001b[39m\u001b[37m\u001b[39m\u001b[47m\u001b[30m 22:18:33 \u001b[39m\u001b[00m\u001b[1B\u001b[1B\u001b[49m\u001b[234D&quot;]
+[2.063989, &quot;o&quot;, &quot;\u001b[?2004h\u001b[?2004h&quot;]
+[2.64222, &quot;o&quot;, &quot;e&quot;]
+[2.862095, &quot;o&quot;, &quot;\bex&quot;]
+[2.961866, &quot;o&quot;, &quot;i&quot;]
+[3.077862, &quot;o&quot;, &quot;t&quot;]
+[3.663037, &quot;o&quot;, &quot;\u001b[?2004l&quot;]
+[3.663275, &quot;o&quot;, &quot;\u001b[?2004l\r\r\n&quot;]
+[3.664595, &quot;o&quot;, &quot;\u001b]2;exit\u0007\u001b]1;exit\u0007&quot;]
+</code></pre>
+
+<p>This may seem like gibberish, but remember that asciinema casts include <a href="https://en.wikipedia.org/wiki/ANSI_escape_code">ANSI escape codes</a> (for things like moving the cursor around and setting colours, common in custom prompts) as well as the unicode code points for any non-ascii characters.</p>
+
+<p>There are two types of lines: a header and I/O lines.</p>
+
+<h4 id="header-prettified">Header (prettified)</h4>
+
+<pre><code class="language-json">{
+    &quot;version&quot;: 2,
+    &quot;width&quot;: 238,
+    &quot;height&quot;: 67,
+    &quot;timestamp&quot;: 1528769911,
+    &quot;env&quot;: {
+        &quot;SHELL&quot;: &quot;/bin/zsh&quot;,
+        &quot;TERM&quot;: &quot;xterm-256color&quot;
+    }
+}
+</code></pre>
+
+<p>The source of each of these elements can be found in the <a href="https://github.com/asciinema/asciinema/blob/asciicast-v2/asciinema/asciicast/v2.py#L92">asciinema recorder source code</a>.</p>
+
+<h4 id="i-o-lines">I/O lines</h4>
+
+<pre><code class="language-json">[2.64222, &quot;o&quot;, &quot;e&quot;]
+</code></pre>
+
+<p>The three elements here are defined in <a href="https://github.com/asciinema/asciinema/blob/asciicast-v2/asciinema/asciicast/v2.py#L72">this line of code</a>. The first is a float representing the number of seconds since the start of the cast that this output line should be printed, the second appears to be a constant <code>&quot;o&quot;</code>, and the third is the actual text that should be output. To replay the cast, the asciinema player iterates through the lines in the file and outputs each chunk of text at the right time.</p>
+
+<h3 id="subsetting-the-font">Subsetting the font</h3>
+
+<p>Now that we know the structure of the cast files we can go through it to figure out the unicode characters that are missing from our font. Let&rsquo;s start with the bottom line of the prompt:</p>
+
+<pre><code class="language-json">[2.063703, &quot;o&quot;, &quot;... ╰\u001b[39m \u001b[K ...&quot;]
+</code></pre>
+
+<p>Where <code>\u001b[39m</code> is the ANSI code for <code>Default foreground color</code>, <code>\u001b[K</code> is the ANSI code for <code>Clear to end of line</code>, and I&rsquo;ve omitted much of the prompt for simplicity.</p>
+
+<h4 id="expected">Expected</h4>
+
+<p><img src="https://d33wubrfki0l68.cloudfront.net/8b4b92ce1d87823d78f9ec5e06f4e55c4bb305cc/5b3fc/images/asciinema-good-prompt.png" alt="What the prompt should look like" /></p>
+
+<h4 id="actual">Actual</h4>
+
+<p><img src="https://d33wubrfki0l68.cloudfront.net/558f23caec20c732f99bedcd621c5ec4f0e4d2a8/0fe41/images/asciinema-bad-prompt.png" alt="What the prompt actually looks like" /></p>
+
+<h5 id="a-script-to-find-missing-glyphs">A script to find missing glyphs</h5>
+
+
+
+<pre><code class="language-python">#!/usr/bin/env python3
+
+import glob
+import json
+import os
+import string
+import sys
+
+import click
+from fontTools import subset
+
+def _get_cast_chars(f):
+    for line in f:
+        json_line = json.loads(line)
+        if not isinstance(json_line, list):
+            continue
+        if len(json_line) != 3:
+            print(f'Unexpected number of array elements: {json_line}\n')
+            continue
+        for char in line[2]:
+            yield char
+
+@click.command()
+@click.option('--input-font', required=True,
+              help='Path to input font file.')
+@click.option('--output', required=True,
+              help='File to output subsetted font to.')
+@click.option('--casts', required=True,
+              help='asciinema cast file or directory')
+@click.option('--exclude-ascii', is_flag=True,
+              help='Exclude ascii characters from subsetted font?')
+def main(input_font, output, casts, exclude_ascii):
+    # Build list of unicode codepoints that the asciinema casts require
+    cast_chars = set()
+    if os.path.isfile(casts):
+        with open(casts, 'r') as f:
+            cast_chars = set(_get_cast_chars(f))
+    else:
+        for cast_file in glob.iglob(os.path.join(casts, '**', '*.cast'),
+                                    recursive=True):
+            with open(cast_file, 'r') as f:
+                cast_chars = cast_chars.union(set(_get_cast_chars(f)))
+
+    # Exclude ascii chars (0-127)? If the font you are including is only
+    # for glyphs then you don't really need them.
+    if exclude_ascii:
+        cast_chars -= {c for chars in [string.ascii_letters,
+                                       string.digits,
+                                       string.punctuation]
+                       for c in chars}
+
+    # Exclude whitespace, fonts don't register these characters so
+    # leaving them in here will break fontTools.subset
+    cast_chars -= {c for c in string.whitespace}
+
+    return subset.main(args=[
+        input_font,
+        '--unicodes={}'.format(''.join(cast_chars).
+                               encode(&quot;unicode-escape&quot;).
+                               decode(&quot;ascii&quot;).
+                               replace(&quot;\\u&quot;, &quot;U+&quot;)),
+        f'--output-file={output}',
+        '--timing',
+    ])
+
+if __name__ == '__main__':
+    sys.exit(main())
+
+</code></pre>
+
+
+<h6 id="usage">Usage</h6>
+
+<pre><code class="language-sh">asciinema_font_subsetter.py --input-font special.ttf --output glyphs.ttf --casts casts/ --exclude-asci
+</code></pre>
+
+<h6 id="result">Result</h6>
+
+<pre><code class="language-sh">$ ls -l output.* | tr -s ' ' | cut -d ' ' -f 5,9 | sort -h --reverse
+963972 special.ttf
+539394 special.gz
+1796 glyphs.ttf
+1092 glyphs.gz
+</code></pre>
+
+<p>Much better, 1.75KB is a far more stomachable size to include in the assets for users to download, and it gzips to nearly under 1KB so we keep a pretty good compression ratio (1.66 vs 1.78). This represents nearly 500x reduction in size from the original naive approach of including the entire font.</p>
+
+<h3 id="using-the-new-glyph-only-font">Using the new glyph-only font</h3>
+
+<p>Add the following to your CSS file:</p>
+
+<pre><code class="language-css">@font-face {
+    font-family: &quot;Terminal Glyphs&quot;;
+    src: url(&quot;/css/fonts/glyphs.ttf&quot;) format(&quot;truetype&quot;);
+}
+
+.asciinema-terminal {
+    font-family: 'Terminal Glyphs', Consolas, Menlo, 'Bitstream Vera Sans Mono', monospace, 'Powerline Symbols';
+}
+</code></pre>
+
+<p>The glyph-only font subset you just created is first in the list to minimise the chance of loading some special glyphs from the existing fonts and having them not line up or match properly with ones that font doesn&rsquo;t have.</p>
+
+<h2 id="final-result">Final result</h2>
+
+<p class="terminal-glyphs">
+    <asciinema-player
+        src="https://d33wubrfki0l68.cloudfront.net/b336354cd000e05055825ec4ade7866f95032a7f/9ed74/casts/asciinema-missing-glyphs.cast"
+        cols="640"
+        rows="10"
+        
+        
+        
+        start-at="0"
+        speed="1"
+        
+        
+        
+        
+        
+        
+        
+        
+    ></asciinema-player>
+</p>
+
+
+<script src="https://utteranc.es/client.js"
+        repo="roganartu/blog-comments"
+        issue-number="2"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script>
+
+
+                </section>
+            </article>
+
+            
+
+            <footer id="footer">
+    
+        <div id="social">
+
+	
+	
+    <a class="symbol" href="mailto:hi@tonylykke.com">
+        <i class="fa fa-envelope-square"></i>
+    </a>
+    
+    <a class="symbol" href="https://github.com/roganartu">
+        <i class="fa fa-github-square"></i>
+    </a>
+    
+    <a class="symbol" href="https://www.linkedin.com/in/roganartu/">
+        <i class="fa fa-linkedin-square"></i>
+    </a>
+    
+    <a class="symbol" href="https://twitter.com/roganartu">
+        <i class="fa fa-twitter-square"></i>
+    </a>
+    
+
+
+</div>
+
+    
+    <p class="small">
+    
+       © 2019 <i class="fa fa-code" aria-hidden="true"></i> Tony Lykke
+    
+    </p>
+</footer>
+
+        </section>
+
+        <script src="https://www.tonylykke.com/js/main.js"></script>
+<script src="https://www.tonylykke.com/js/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+
+
+    <script src="https://www.tonylykke.com/js/asciinema-player.js"></script>
+
+
+
+    
+  
+  <img src="data:," style="display:none" id="goaccess" alt="GoAccess pixel" />
+  <script>
+    <!--
+    document.getElementById('goaccess').src = 'https://s3.amazonaws.com/goaccess.tonylykke.com/dot.png?ref=' + encodeURIComponent(document.referrer);
+    -->
+   </script>
+   <noscript>
+     <img src="https://s3.amazonaws.com/goaccess.tonylykke.com/dot.png?noscript=" style="display:none" id="goaccess" />
+   </noscript>
+
+
+
+
+
+    </body>
+</html>
