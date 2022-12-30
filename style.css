@@ -1,0 +1,15 @@
+@font-face {
+    font-family: "Terminal Glyphs";
+    src: url("/glyphs.eot");
+    src:
+        url("/glyphs.ttf") format("truetype"),
+        url("/glyphs.woff") format("woff"),
+        url("/glyphs.otf") format("opentype");
+}
+
+.terminal-glyphs .asciinema-terminal {
+    font-family: 'Terminal Glyphs', Consolas, Menlo, 'Bitstream Vera Sans Mono', monospace, 'Powerline Symbols';
+}
+
+
+/* halo dunia !! */
